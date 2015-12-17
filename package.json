@@ -1,0 +1,27 @@
+{
+  "name": "shampoojs",
+  "version": "1.0.0-alpha",
+  "description": "Javascript implementation of the Shampoo Websocket protocol.",
+  "main": "bin/shampoo.js",
+  "scripts": {
+    "prepublish": "tsc",
+    "test": "jasmine",
+    "watch": "tsc -w",
+
+    "dev": "npm test && npm run watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wendbv/shampoojs.git"
+  },
+  "author": "Martijn Arts",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wendbv/shampoojs/issues"
+  },
+  "homepage": "https://github.com/wendbv/shampoojs#readme",
+  "devDependencies": {
+    "jasmine": "^2.4.1",
+    "typescript": "^1.7.5"
+  }
+}

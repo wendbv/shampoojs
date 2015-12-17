@@ -1,2 +1,3 @@
 # shampoojs
-Javascript implementation of the Shampoo protocol
+Implementation of the Shampoo protocol, written in Typescript and compiled to
+Javascript
