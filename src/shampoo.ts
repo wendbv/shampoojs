@@ -93,11 +93,31 @@ export class Shampoo {
         this.ready = false;
     }
 
+    /**
+     * Safely close the Shampoo/WebSocket connection. This will wait for all
+     * open requests to clear out and then close the socket. This is pretty
+     * much just a nicety and usually you'll want to use `closeNow`.
+     * It does set the socket's status to not ready, which means it'll stop
+     * accepting any requests.
+     */
     close() {
+        this.ready = false;
+        this.onRequestsClear = (() => this.socket.close());
+    }
+
+    /**
+     * Immediately close the socket. This will not finish up any requests and
+     * close the socket. Any open requests will thus be ignored and die off.
+     */
+    closeNow() {
         this.socket.close();
     }
 
     call<T>(method: string, data: T): Promise<T> {
+        if(!this.ready) {
+            throw new Error("Shampoo WebSocket not ready");
+        }
+
         this.index += 1;
 
         let message: Request<T> = {

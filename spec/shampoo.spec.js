@@ -34,6 +34,8 @@ function buildMessageEvent(index, status, response, message) {
 describe('Shampoo', () => {
     beforeEach(() => {
         this.s = new Shampoo('foo');
+
+        this.s.socket.onopen();
     });
     afterEach(() => {
         this.s.close();
@@ -45,7 +47,6 @@ describe('Shampoo', () => {
     });
 
     it('should open correctly', () => {
-        this.s.socket.onopen();
         expect(this.s.ready).toBe(true);
     });
 
