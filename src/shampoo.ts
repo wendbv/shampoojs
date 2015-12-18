@@ -16,13 +16,8 @@ interface Request<T> {
     index_number: number;
 }
 
-interface PromiseObj<R> {
-    resolve: (data: Response) => void,
-    reject: (data: Response) => void,
-    promise: Promise<R>
-}
 interface MessageMap {
-    [index: number]: PromiseObj<any>;
+    [index: number]: (data: Response) => void;
 }
 
 
@@ -78,12 +73,7 @@ export class Shampoo {
     }
 
     private onMessage(e: ResponseEvent) {
-        let p = this.messageMap[e.data.request_index_number];
-        if(e.data.status >= 200 && e.data.status <= 299) {
-            p.resolve(e.data.response_data);
-        } else {
-            p.reject(e.data.response_data);
-        }
+        this.messageMap[e.data.request_index_number](e.data);
     }
 
     private onError(e: Event) {
@@ -126,27 +116,23 @@ export class Shampoo {
             index_number: this.index,
         };
 
-        let promiseObj: PromiseObj<T> = {
-            resolve: (data: Response) => {},
-            reject: (data: Response) => {},
-            promise: undefined,
-        };
+        let response = (data: Response) => {};
 
-        let promise = promiseObj.promise = new Promise<T>((resolve, reject) => {
+        let promise = new Promise<T>((resolve, reject) => {
             this.sendMessage(message);
             this.openedRequest();
 
-            promiseObj.resolve = (data: Response) => {
+            response = (data: Response) => {
                 this.closedRequest();
-                resolve(<T>data.response_data);
-            };
-            promiseObj.reject = (data: Response) => {
-                this.closedRequest();
-                reject(<T>data.response_data);
+                if(data.status >= 200 && data.status <= 299) {
+                    resolve(<T>data.response_data);
+                } else {
+                    reject(<T>data.response_data);
+                }
             };
         });
 
-        this.messageMap[this.index] = promiseObj;
+        this.messageMap[this.index] = response;
 
         return promise;
     }
