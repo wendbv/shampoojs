@@ -68,4 +68,25 @@ describe('Shampoo', () => {
             request_index_number: 1,
         }});
     });
+
+    it('should be able to keep track of multiple requests', (done) => {
+        this.s.call('foo', {})
+            .then(() => {});
+        this.s.call('bar', {})
+            .then(done, () => {});
+
+        this.s.socket.onmessage({data: {
+            status: 200,
+            message: 'ok',
+            response_data: {},
+            request_index_number: 1,
+        }});
+
+        this.s.socket.onmessage({data: {
+            status: 200,
+            message: 'ok',
+            response_data: {},
+            request_index_number: 2,
+        }});
+    });
 });
