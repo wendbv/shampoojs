@@ -21,6 +21,12 @@ interface MessageMap {
 }
 
 
+/**
+ * Our Shampoo class is really an connection to a WebSocket endpoint. This not
+ * only connects, but it also manages all Shampoo-style requests/responses. It
+ * keeps track of request indices and, best of all, helps you keep track of
+ * requests Promise-style!
+ */
 export class Shampoo {
     index: number = 0;
 
@@ -59,6 +65,10 @@ export class Shampoo {
         }
     }
 
+    /**
+     * All we need is URI - and endpoint to connect to. Make sure this is
+     * formatted in proper WebSocket format, so `ws://hostna.me/end/point`.
+     */
     constructor(uri: string) {
         this.socket = new WebSocket(uri, 'shampoo');
 
@@ -103,6 +113,14 @@ export class Shampoo {
         this.socket.close();
     }
 
+    /**
+     * Call a method with some data. With Typescript, you can make this
+     * entirely typesafe, how cool is that?
+     * @param method The method name to call.
+     * @param data   The data to send along.
+     * @returns      A Promise which will be resolved as soon as the response
+     *               is received, with the data from the response.
+     */
     call<T>(method: string, data: T): Promise<T> {
         if(!this.ready) {
             throw new Error("Shampoo WebSocket not ready");
