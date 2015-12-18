@@ -79,4 +79,21 @@ describe('Shampoo', () => {
         this.s.socket.onmessage(buildMessageEvent(1));
         this.s.socket.onmessage(buildMessageEvent(2));
     });
+
+    it('should notify when a requests has been opened', (done) => {
+        this.s.onRequestOpen = done;
+
+        this.s.call('foo', {});
+        this.s.socket.onmessage(buildMessageEvent(2));
+    });
+
+    it('should notify when alle events have cleared', (done) => {
+        this.s.onRequestsClear = done;
+
+        this.s.call('foo', {});
+        this.s.call('bar', {});
+
+        this.s.socket.onmessage(buildMessageEvent(1));
+        this.s.socket.onmessage(buildMessageEvent(2));
+    });
 });

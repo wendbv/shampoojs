@@ -31,8 +31,38 @@ export class Shampoo {
 
     socket: WebSocket;
     ready: boolean = false;
-
     messageMap: MessageMap = {};
+
+    /**
+     * The onRequestsClear event will be called when there are zero requests
+     * left running. This is (obviously) not a very powerful event manager, but
+     * that's out of scope for now. Just a simple callback.
+     */
+    onRequestsClear: () => void = () => {};
+
+    /**
+     * The onRequestOpen event will be called when a request is opened.
+     */
+    onRequestOpen: () => void = () => {};
+
+    private _openRequests: number = 0;
+    /**
+     * openRequests returns the amount of running (open) requests.
+     */
+    get openRequests() {
+        return this._openRequests;
+    }
+
+    private openedRequest() {
+        this._openRequests += 1;
+        this.onRequestOpen();
+    }
+    private closedRequest() {
+        this._openRequests -= 1;
+        if(this._openRequests == 0) {
+            this.onRequestsClear();
+        }
+    }
 
     constructor(uri: string) {
         this.socket = new WebSocket(uri, 'shampoo');
@@ -84,11 +114,14 @@ export class Shampoo {
 
         let promise = promiseObj.promise = new Promise<T>((resolve, reject) => {
             this.sendMessage(message);
+            this.openedRequest();
 
             promiseObj.resolve = (data: Response) => {
+                this.closedRequest();
                 resolve(<T>data.response_data);
             };
             promiseObj.reject = (data: Response) => {
+                this.closedRequest();
                 reject(<T>data.response_data);
             };
         });
