@@ -6,9 +6,9 @@
   "scripts": {
     "prepublish": "tsc",
     "test": "jasmine",
+    "test-watch": "node node_modules/onchange/cli.js bin/shampoo.js spec/shampoo.spec.js -- npm test",
     "watch": "tsc -w",
-
-    "dev": "npm test && npm run watch"
+    "dev": "npm run watch & npm run test-watch"
   },
   "repository": {
     "type": "git",
@@ -22,6 +22,7 @@
   "homepage": "https://github.com/wendbv/shampoojs#readme",
   "devDependencies": {
     "jasmine": "^2.4.1",
+    "rewire": "^2.5.1",
     "typescript": "^1.7.5"
   }
 }
