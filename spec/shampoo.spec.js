@@ -20,6 +20,17 @@ var wsSpy = jasmine.createSpy('WebSocket').and.callFake(
     });
 sh.__set__('WebSocket', wsSpy);
 
+function buildMessageEvent(index, status, response, message) {
+    let data = {
+        status: status || 200,
+        message: message || 'foobar',
+        response_data: response || {},
+        request_index_number: index,
+    };
+
+    return {data: data};
+};
+
 describe('Shampoo', () => {
     beforeEach(() => {
         this.s = new Shampoo('foo');
@@ -49,24 +60,14 @@ describe('Shampoo', () => {
         this.s.call('foo', {})
             .then(done, () => {});
 
-        this.s.socket.onmessage({data: {
-            status: 200,
-            message: 'ok',
-            response_data: {},
-            request_index_number: 1,
-        }});
+        this.s.socket.onmessage(buildMessageEvent(1));
     });
 
     it('should keep its promises even if something goes wrong', (done) => {
         this.s.call('foo', {})
             .then(() => {}, done);
 
-        this.s.socket.onmessage({data: {
-            status: 501,
-            message: 'Server Error',
-            response_data: {},
-            request_index_number: 1,
-        }});
+        this.s.socket.onmessage(buildMessageEvent(1, 501));
     });
 
     it('should be able to keep track of multiple requests', (done) => {
@@ -75,18 +76,7 @@ describe('Shampoo', () => {
         this.s.call('bar', {})
             .then(done, () => {});
 
-        this.s.socket.onmessage({data: {
-            status: 200,
-            message: 'ok',
-            response_data: {},
-            request_index_number: 1,
-        }});
-
-        this.s.socket.onmessage({data: {
-            status: 200,
-            message: 'ok',
-            response_data: {},
-            request_index_number: 2,
-        }});
+        this.s.socket.onmessage(buildMessageEvent(1));
+        this.s.socket.onmessage(buildMessageEvent(2));
     });
 });
