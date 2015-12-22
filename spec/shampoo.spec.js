@@ -20,8 +20,9 @@ var wsSpy = jasmine.createSpy('WebSocket').and.callFake(
     });
 sh.__set__('WebSocket', wsSpy);
 
-function buildMessageEvent(index, status, response, message) {
+function buildResponseEvent(index, status, response, message) {
     let data = {
+        type: 'response',
         status: status || 200,
         message: message || 'foobar',
         response_data: response || {},
@@ -61,14 +62,14 @@ describe('Shampoo', () => {
         this.s.call('foo', {})
             .then(done, () => {});
 
-        this.s.socket.onmessage(buildMessageEvent(1));
+        this.s.socket.onmessage(buildResponseEvent(1));
     });
 
     it('should keep its promises even if something goes wrong', (done) => {
         this.s.call('foo', {})
             .then(() => {}, done);
 
-        this.s.socket.onmessage(buildMessageEvent(1, 501));
+        this.s.socket.onmessage(buildResponseEvent(1, 501));
     });
 
     it('should be able to keep track of multiple requests', (done) => {
@@ -77,15 +78,15 @@ describe('Shampoo', () => {
         this.s.call('bar', {})
             .then(done, () => {});
 
-        this.s.socket.onmessage(buildMessageEvent(1));
-        this.s.socket.onmessage(buildMessageEvent(2));
+        this.s.socket.onmessage(buildResponseEvent(1));
+        this.s.socket.onmessage(buildResponseEvent(2));
     });
 
     it('should notify when a requests has been opened', (done) => {
         this.s.onRequestOpen = done;
 
         this.s.call('foo', {});
-        this.s.socket.onmessage(buildMessageEvent(2));
+        this.s.socket.onmessage(buildResponseEvent(2));
     });
 
     it('should notify when alle events have cleared', (done) => {
@@ -94,7 +95,7 @@ describe('Shampoo', () => {
         this.s.call('foo', {});
         this.s.call('bar', {});
 
-        this.s.socket.onmessage(buildMessageEvent(1));
-        this.s.socket.onmessage(buildMessageEvent(2));
+        this.s.socket.onmessage(buildResponseEvent(1));
+        this.s.socket.onmessage(buildResponseEvent(2));
     });
 });

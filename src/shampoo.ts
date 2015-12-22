@@ -1,16 +1,24 @@
 /// <reference path="typings/promise.d.ts" />
 
-interface Response {
+interface Message {
+    type: string;
+}
+
+interface Response extends Message {
     status: number;
     message: string;
     response_data: any;
     request_index_number: number;
 }
-interface ResponseEvent extends Event {
-    data: Response;
+interface PushMessage extends Message {
+    event_name: string;
+    push_data: any;
+}
+interface ResponseEvent {
+    data: Response | PushMessage;
 }
 
-interface Request<T> {
+interface Request<T> extends Message {
     method: string;
     request_data: T;
     index_number: number;
@@ -18,6 +26,15 @@ interface Request<T> {
 
 interface MessageMap {
     [index: number]: (data: Response) => void;
+}
+
+type Event = () => void;
+
+function isPushMessage(data: Message): data is PushMessage {
+    return data.type == 'push';
+}
+function isResponse(data: Message): data is Response {
+    return data.type == 'response';
 }
 
 
@@ -39,12 +56,12 @@ export class Shampoo {
      * left running. This is (obviously) not a very powerful event manager, but
      * that's out of scope for now. Just a simple callback.
      */
-    onRequestsClear: () => void = () => {};
+    onRequestsClear: Event = () => {};
 
     /**
      * The onRequestOpen event will be called when a request is opened.
      */
-    onRequestOpen: () => void = () => {};
+    onRequestOpen: Event = () => {};
 
     private _openRequests: number = 0;
     /**
@@ -83,7 +100,14 @@ export class Shampoo {
     }
 
     private onMessage(e: ResponseEvent) {
-        this.messageMap[e.data.request_index_number](e.data);
+        let data = e.data;
+        if(isPushMessage(data)) {
+            this.onPushMessage(data);
+        } else if(isResponse(data)) {
+            this.messageMap[data.request_index_number](data);
+        } else {
+            throw new Error('Shampoo: Unknown message type');
+        }
     }
 
     private onError(e: Event) {
@@ -113,6 +137,9 @@ export class Shampoo {
         this.socket.close();
     }
 
+    private onPushMessage(data: PushMessage) {
+    }
+
     /**
      * Call a method with some data. With Typescript, you can make this
      * entirely typesafe, how cool is that?
@@ -129,6 +156,7 @@ export class Shampoo {
         this.index += 1;
 
         let message: Request<T> = {
+            type: 'request',
             method: method,
             request_data: data,
             index_number: this.index,
