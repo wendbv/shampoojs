@@ -28,7 +28,7 @@ interface MessageMap {
     [index: number]: (data: Response) => void;
 }
 
-type Event = (...args: any[]) => void;
+export type Event = (...args: any[]) => void;
 interface eventIndexedEvents {
     [eventIndex: number]: Event;
 }
@@ -55,7 +55,7 @@ export class Shampoo {
 
     socket: WebSocket;
     ready: boolean = false;
-    messageMap: MessageMap = {};
+    private messageMap: MessageMap = {};
 
 
     private eventIndex: number = 0;
