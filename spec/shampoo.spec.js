@@ -20,6 +20,7 @@ var wsSpy = jasmine.createSpy('WebSocket').and.callFake(
     });
 sh.__set__('WebSocket', wsSpy);
 
+
 function buildResponseEvent(index, status, response, message) {
     let data = {
         type: 'response',
@@ -27,6 +28,16 @@ function buildResponseEvent(index, status, response, message) {
         message: message || 'foobar',
         response_data: response || {},
         request_index_number: index,
+    };
+
+    return {data: data};
+};
+
+function buildPushEvent(name, push_data) {
+    let data = {
+        type: 'push',
+        event_name: name,
+        push_data: push_data || {},
     };
 
     return {data: data};
@@ -83,19 +94,25 @@ describe('Shampoo', () => {
     });
 
     it('should notify when a requests has been opened', (done) => {
-        this.s.onRequestOpen = done;
+        this.s.onRequestOpen(done);
 
         this.s.call('foo', {});
         this.s.socket.onmessage(buildResponseEvent(2));
     });
 
-    it('should notify when alle events have cleared', (done) => {
-        this.s.onRequestsClear = done;
+    it('should notify when all events have cleared', (done) => {
+        this.s.onRequestsClear(done);
 
         this.s.call('foo', {});
         this.s.call('bar', {});
 
         this.s.socket.onmessage(buildResponseEvent(1));
         this.s.socket.onmessage(buildResponseEvent(2));
+    });
+
+    it('should notify when a push message arrives', (done) => {
+        this.s.on('foo', done);
+
+        this.s.socket.onmessage(buildPushEvent('foo'));
     });
 });

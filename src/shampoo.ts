@@ -28,7 +28,13 @@ interface MessageMap {
     [index: number]: (data: Response) => void;
 }
 
-type Event = () => void;
+type Event = (...args: any[]) => void;
+interface eventIndexedEvents {
+    [eventIndex: number]: Event;
+}
+interface EventsMap {
+    [name: string]: number[];
+}
 
 function isPushMessage(data: Message): data is PushMessage {
     return data.type == 'push';
@@ -51,21 +57,88 @@ export class Shampoo {
     ready: boolean = false;
     messageMap: MessageMap = {};
 
-    /**
-     * The onRequestsClear event will be called when there are zero requests
-     * left running. This is (obviously) not a very powerful event manager, but
-     * that's out of scope for now. Just a simple callback.
-     */
-    onRequestsClear: Event = () => {};
+
+    private eventIndex: number = 0;
+
+    private map: EventsMap = {};
+    private events: eventIndexedEvents = {};
 
     /**
-     * The onRequestOpen event will be called when a request is opened.
+     * Trigger the event name. If there's nothing to trigger, this'll... well,
+     * just do nothing. It's fine, no worries.
+     * @param name Event name.
      */
-    onRequestOpen: Event = () => {};
+    public trigger(name: string, data?: any) {
+        var evts = this.map[name] || [];
+        evts.forEach((eventIndex) => this.events[eventIndex](data));
+    }
+
+    /**
+     * Private event registry. Since all public events are bound to a "special"
+     * event name (push:<event>), but there's still some private events you
+     * need to be able to bind to we use this private registration method.
+     */
+    private _on(name: string, func: Event) {
+        var evts = this.map[name];
+        if(!evts) {
+            this.map[name] = evts = [];
+        }
+
+        this.eventIndex += 1;
+        evts.push(this.eventIndex);
+
+        this.events[this.eventIndex] = func;
+
+        return this.eventIndex;
+    }
+
+    /**
+     * This binds to push messages by event name.
+     * @param name The event name, this can be anything you like.
+     * @param func Callback function, will be called when the event is
+     *             triggered.
+     * @returns    An eventIndex with which you can deregister the event, with
+     *             off.
+     */
+    on(name: string, func: Event) {
+        return this._on(`push:${name}`, func);
+    }
+
+    onRequestOpen(func: Event) {
+        return this._on('requestOpen', func);
+    }
+    onRequestsClear(func: Event) {
+        return this._on('requestsClear', func);
+    }
+
+    private _off(name: string, eventIndex: number) {
+        var evts = this.map[name];
+        if(!evts) return;
+
+        evts.splice(evts.indexOf(eventIndex), 1);
+        delete this.events[eventIndex];
+    }
+
+    /**
+     * Deregister an event.
+     * @param name  The event name.
+     * @param eventIndex Registration eventIndex, which you get from the on method.
+     */
+    off(name: string, eventIndex: number) {
+        return this._off(`push:${name}`, eventIndex);
+    }
+
+    offRequestOpen(eventIndex: number) {
+        return this._off('requestOpen', eventIndex);
+    }
+    offRequestsClear(eventIndex: number) {
+        return this._off('requestsClear', eventIndex);
+    }
+
 
     private _openRequests: number = 0;
     /**
-     * openRequests returns the amount of running (open) requests.
+     * The amount of running (open) requests.
      */
     get openRequests() {
         return this._openRequests;
@@ -73,12 +146,12 @@ export class Shampoo {
 
     private openedRequest() {
         this._openRequests += 1;
-        this.onRequestOpen();
+        this.trigger('requestOpen');
     }
     private closedRequest() {
         this._openRequests -= 1;
         if(this._openRequests == 0) {
-            this.onRequestsClear();
+            this.trigger('requestsClear');
         }
     }
 
@@ -126,7 +199,7 @@ export class Shampoo {
      */
     close() {
         this.ready = false;
-        this.onRequestsClear = (() => this.socket.close());
+        this._on('requestsClear', () => this.socket.close());
     }
 
     /**
@@ -138,6 +211,8 @@ export class Shampoo {
     }
 
     private onPushMessage(data: PushMessage) {
+        let name = data.event_name
+        this.trigger(`push:${name}`, data.push_data);
     }
 
     /**
