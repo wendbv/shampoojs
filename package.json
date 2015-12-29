@@ -6,6 +6,7 @@
   "typings": "bin/shampoo.d.ts",
   "scripts": {
     "prepublish": "tsc",
+    "postinstall": "tsc",
     "test": "jasmine",
     "test-watch": "node node_modules/onchange/cli.js bin/shampoo.js spec/shampoo.spec.js -- npm test",
     "watch": "tsc -w",
