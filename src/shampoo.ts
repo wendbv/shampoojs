@@ -248,7 +248,11 @@ export class Shampoo {
                 if(data.status >= 200 && data.status <= 299) {
                     resolve(<T>data.response_data);
                 } else {
-                    reject(<T>data.response_data);
+                    reject({
+                        status: data.status,
+                        message: data.message,
+                        response_data: data.response_data,
+                    });
                 }
             };
         });
