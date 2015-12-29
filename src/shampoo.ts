@@ -1,4 +1,9 @@
-/// <reference path="typings/promise.d.ts" />
+// Kind of a hack to prevent errors in type scoping.
+// See: https://github.com/Microsoft/TypeScript/issues/4665
+export declare class Promise<T extends any> {
+    constructor(...args: any[]);
+}
+
 
 interface Message {
     type: string;
@@ -239,7 +244,7 @@ export class Shampoo {
 
         let response = (data: Response) => {};
 
-        let promise = new Promise<T>((resolve, reject) => {
+        let promise = new Promise<T>((resolve: (...args: any[]) => void, reject: (...args: any[]) => void) => {
             this.sendMessage(message);
             this.openedRequest();
 
