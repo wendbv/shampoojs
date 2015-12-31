@@ -1,6 +1,6 @@
 {
   "name": "shampoojs",
-  "version": "1.0.0-beta",
+  "version": "1.0.0-beta2",
   "description": "Javascript implementation of the Shampoo Websocket protocol.",
   "main": "bin/shampoo.js",
   "typings": "bin/shampoo.d.ts",
