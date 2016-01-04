@@ -228,7 +228,7 @@ export class Shampoo {
      * @returns      A Promise which will be resolved as soon as the response
      *               is received, with the data from the response.
      */
-    call<T>(method: string, data: T): Promise<T> {
+    call<T>(method: string, data: any = {}): Promise<T> {
         if(!this.ready) {
             throw new Error("Shampoo WebSocket not ready");
         }

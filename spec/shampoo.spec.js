@@ -62,7 +62,14 @@ describe('Shampoo', () => {
         expect(this.s.ready).toBe(true);
     });
 
-    it('should allow me to call a method', () => {
+    it('should allow me to call a method without data', () => {
+        spyOn(this.s, 'sendMessage');
+        this.s.call('foo');
+
+        expect(this.s.sendMessage).toHaveBeenCalled();
+    });
+
+    it('should allow me to call a method with data', () => {
         spyOn(this.s, 'sendMessage');
         this.s.call('foo', {});
 
