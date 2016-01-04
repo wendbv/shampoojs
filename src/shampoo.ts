@@ -1,9 +1,4 @@
-// Kind of a hack to prevent errors in type scoping.
-// See: https://github.com/Microsoft/TypeScript/issues/4665
-export declare class Promise<T extends any> {
-    constructor(...args: any[]);
-}
-
+/// <reference path="./typings/promise.d.ts" />
 
 interface Message {
     type: string;
