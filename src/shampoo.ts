@@ -50,7 +50,7 @@ function isResponse(data: Message): data is Response {
 
 
 /**
- * Our Shampoo class is really an connection to a WebSocket endpoint. This not
+ * Our Shampoo class is really a connection to a WebSocket endpoint. This not
  * only connects, but it also manages all Shampoo-style requests/responses. It
  * keeps track of request indices and, best of all, helps you keep track of
  * requests Promise-style!
