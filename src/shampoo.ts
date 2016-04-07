@@ -8,7 +8,7 @@ interface Response extends Message {
     status: number;
     message: string;
     response_data: any;
-    request_index_number: number;
+    request_id: number;
 }
 interface PushMessage extends Message {
     event_name: string;
@@ -21,7 +21,7 @@ interface ResponseEvent {
 interface Request<T> extends Message {
     method: string;
     request_data: T;
-    index_number: number;
+    request_id: number;
 }
 
 interface MessageMap {
@@ -177,7 +177,7 @@ export class Shampoo {
         if(isPushMessage(data)) {
             this.onPushMessage(data);
         } else if(isResponse(data)) {
-            this.messageMap[data.request_index_number](data);
+            this.messageMap[data.request_id](data);
         } else {
             throw new Error('Shampoo: Unknown message type');
         }
@@ -234,7 +234,7 @@ export class Shampoo {
             type: 'request',
             method: method,
             request_data: data,
-            index_number: this.index,
+            request_id: this.index,
         };
 
         let response = (data: Response) => {};
