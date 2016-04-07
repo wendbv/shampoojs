@@ -72,6 +72,11 @@ s.off('bar', e);
 There's a few other events, which can be bound to with specific methods:
 
 ```javascript
+var so = s.onSocketOpen(function() {
+    console.log('socket opened');
+});
+s.offSocketOpen(so);
+
 var ro = s.onRequestOpen(function() {
     console.log('request opened');
 });

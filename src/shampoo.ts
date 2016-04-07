@@ -103,6 +103,9 @@ export class Shampoo {
     onRequestsClear(func: Event) {
         return this._on('requestsClear', func);
     }
+    onSocketOpen(func: Event) {
+        return this._on('socketOpen', func);
+    }
 
     private _off(name: string, eventIndex: number) {
         var evts = this.map[name];
@@ -126,6 +129,9 @@ export class Shampoo {
     }
     offRequestsClear(eventIndex: number) {
         return this._off('requestsClear', eventIndex);
+    }
+    offSocketOpen(eventIndex: number) {
+        return this._off('socketOpen', eventIndex);
     }
 
 
@@ -163,6 +169,7 @@ export class Shampoo {
 
     private onReady(e: Event) {
         this.ready = true;
+        this.trigger('socketOpen');
     }
 
     private onMessage(e: MessageEvent) {
