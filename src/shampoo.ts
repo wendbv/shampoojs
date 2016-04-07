@@ -36,13 +36,6 @@ interface EventsMap {
     [name: string]: number[];
 }
 
-function isPushMessage(data: Message): data is PushMessage {
-    return data.type == 'push';
-}
-function isResponse(data: Message): data is Response {
-    return data.type == 'response';
-}
-
 
 /**
  * Our Shampoo class is really a connection to a WebSocket endpoint. This not
@@ -172,12 +165,13 @@ export class Shampoo {
         this.ready = true;
     }
 
-    private onMessage(e: ResponseEvent) {
-        let data = e.data;
-        if(isPushMessage(data)) {
-            this.onPushMessage(data);
-        } else if(isResponse(data)) {
-            this.messageMap[data.request_id](data);
+    private onMessage(e: MessageEvent) {
+        let data = JSON.parse(e.data);
+
+        if(data.type === 'push') {
+            this.onPushMessage(<PushMessage>data);
+        } else if(data.type === 'response') {
+            this.messageMap[data.request_id](<Response>data);
         } else {
             throw new Error('Shampoo: Unknown message type');
         }
