@@ -21,16 +21,16 @@ var wsSpy = jasmine.createSpy('WebSocket').and.callFake(
 sh.__set__('WebSocket', wsSpy);
 
 
-function buildResponseEvent(index, status, response, message) {
+function buildResponseEvent(id, status, response, message) {
     let data = {
         type: 'response',
         status: status || 200,
         message: message || 'foobar',
         response_data: response || {},
-        request_index_number: index,
+        request_id: id,
     };
 
-    return {data: data};
+    return {data: JSON.stringify(data)};
 };
 
 function buildPushEvent(name, push_data) {
@@ -40,7 +40,7 @@ function buildPushEvent(name, push_data) {
         push_data: push_data || {},
     };
 
-    return {data: data};
+    return {data: JSON.stringify(data)};
 };
 
 describe('Shampoo', () => {
@@ -60,6 +60,12 @@ describe('Shampoo', () => {
 
     it('should open correctly', () => {
         expect(this.s.ready).toBe(true);
+    });
+
+    it('should notify when the socket has been opened', (done) => {
+        this.s.onSocketOpen(done);
+
+        this.s.socket.onopen();
     });
 
     it('should allow me to call a method without data', () => {
@@ -116,6 +122,7 @@ describe('Shampoo', () => {
         this.s.socket.onmessage(buildResponseEvent(1));
         this.s.socket.onmessage(buildResponseEvent(2));
     });
+
 
     it('should notify when a push message arrives', (done) => {
         this.s.on('foo', done);

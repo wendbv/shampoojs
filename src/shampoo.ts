@@ -14,9 +14,6 @@ interface PushMessage extends Message {
     event_name: string;
     push_data: any;
 }
-interface ResponseEvent {
-    data: Response | PushMessage;
-}
 
 interface Request<T> extends Message {
     method: string;
@@ -81,7 +78,6 @@ export class Shampoo {
         evts.push(this.eventIndex);
 
         this.events[this.eventIndex] = func;
-
         return this.eventIndex;
     }
 
