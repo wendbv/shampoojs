@@ -5,7 +5,7 @@
   "main": "bin/shampoo.js",
   "typings": "bin/shampoo.d.ts",
   "scripts": {
-    "prepublish": "tsc",
+    "prepublish": "tsc && tail -n +2 bin/shampoo.d.ts | tee bin/shampoo.d.ts > /dev/null",
     "postinstall": "npm run prepublish",
     "test": "jasmine",
     "test-watch": "node node_modules/onchange/cli.js bin/shampoo.js spec/shampoo.spec.js -- npm test",
