@@ -11,7 +11,7 @@ interface Response extends Message {
     request_id: number;
 }
 interface PushMessage extends Message {
-    event_name: string;
+    push_event: string;
     push_data: any;
 }
 
@@ -208,7 +208,7 @@ export class Shampoo {
     }
 
     private onPushMessage(data: PushMessage) {
-        let name = data.event_name
+        let name = data.push_event;
         this.trigger(`push:${name}`, data.push_data);
     }
 

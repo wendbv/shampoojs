@@ -36,7 +36,7 @@ function buildResponseEvent(id, status, response, message) {
 function buildPushEvent(name, push_data) {
     let data = {
         type: 'push',
-        event_name: name,
+        push_event: name,
         push_data: push_data || {},
     };
 
